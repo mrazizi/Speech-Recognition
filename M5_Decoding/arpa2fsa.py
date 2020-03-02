@@ -55,6 +55,11 @@ class arpalm:
             if match_object is not None:
                 return True
             return False
+        def mmap_gzippd(filename):
+            handle = open(filename, 'rb')
+            mapped = mmap.mmap(handle.fileno(), 0, access=mmap.ACCESS_READ)
+            gzfile = gzip.GzipFile(mode="r", fileobj=mapped)
+            return gzfile
         def record_ngram(line: str):
             nonlocal ngram_counts
             nonlocal current_ngram
@@ -74,7 +79,7 @@ class arpalm:
             ngrams[tuple(ngram)] = (ngram_score, backoff_score)
 
         found_end = False
-        with codecs.getreader('UTF-8')(open(filename, 'rb')) as f:
+        with codecs.getreader('UTF-8')(mmap_gzippd(filename)) as f:
 
             # ignore the header, looking for start of data
             for line in f:
