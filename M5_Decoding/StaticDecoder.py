@@ -107,19 +107,22 @@ def main():
         with open(args.scp, 'r') as fscp:
             with open(args.trn, 'w', buffering=1) as ftrn:
                 for line in fscp:
-                    feats, utterance_name = load_parameters(line.rstrip(), script_path)
-                    #feats = feature_stacker(feats)
-                    activations = z.eval(feats.astype('f'))[0]
-                    hypothesis = fst.decode(activations, beam_width=args.beam_width, lmweight=args.lmweight)
-                    words = [
-                        x for x in
-                        map(operator.itemgetter(1), hypothesis)
-                        if x not in ("<eps>", "<s>", "</s>")
-                    ]
-                    words.append('({})\n'.format(utterance_name))
-                    ftrn.write(' '.join(words))
-                    print(' '.join(words))
-                    frames_processed += len(feats)
+                    try:
+                        feats, utterance_name = load_parameters(line.rstrip(), script_path)
+                        #feats = feature_stacker(feats)
+                        activations = z.eval(feats.astype('f'))[0]
+                        hypothesis = fst.decode(activations, beam_width=args.beam_width, lmweight=args.lmweight)
+                        words = [
+                            x for x in
+                            map(operator.itemgetter(1), hypothesis)
+                            if x not in ("<eps>", "<s>", "</s>")
+                        ]
+                        words.append('({})\n'.format(utterance_name))
+                        ftrn.write(' '.join(words))
+                        print(' '.join(words))
+                        frames_processed += len(feats)
+                    except: continue
+                        
 
 
     except KeyboardInterrupt:
