@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+
 class FrontEnd:
 
     def __init__(self, samp_rate=16000, frame_duration=0.025, frame_shift=0.010, preemphasis=0.97,
