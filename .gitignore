@@ -2,3 +2,6 @@
 LibriSpeech/
 
 .idea/
+
+#Experiment files
+Experiments/

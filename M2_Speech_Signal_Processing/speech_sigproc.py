@@ -75,8 +75,12 @@ class FrontEnd:
 
     # replace this with proper pre-emphasis filtering, using the self.preemphasis coefficient
     def pre_emphasize(self, wav):
+        #https://www.quora.com/Why-is-pre-emphasis-i-e-passing-the-speech-signal-through-a-first-order-high-pass-filter-required-in-speech-processing-and-how-does-it-work#
         # apply pre-emphasis filtering on waveform
-        preemph_wav = []
+        preemph_wav = np.zeros(shape=(len(wav)))
+        preemph_wav[0] = wav[0]
+        for i in range(1, len(wav)):
+            preemph_wav[i] = wav[i] - (self.preemphasis * wav[i-1])
         return preemph_wav
 
     def wav_to_frames(self, wav):
@@ -94,19 +98,22 @@ class FrontEnd:
     def frames_to_magspec(self, frames):
         # compute the fft
         # compute magnitude
-        magspec = []
+        magspec = np.absolute(np.fft.rfft(frames, n=self.fft_size, axis=0))
         return magspec
 
     # for each frame(column of 2D array 'magspec'), compute the log mel spectrum, by applying the mel filterbank to the magnitude spectrum
     def magspec_to_fbank(self, magspec):
         # apply the mel filterbank
-        fbank = []
+        fbank = np.dot(self.mel_filterbank, magspec)
+        fbank = np.log10(fbank)
         return fbank
 
     # compute the mean vector of fbank coefficients in the utterance and subtract it from all frames of fbank coefficients
     def mean_norm_fbank(self, fbank):
         # compute mean fbank vector of all frames
+        mean_fbank = np.mean(fbank, axis=0)
         # subtract it from each frame
+        fbank -= mean_fbank
         return fbank
 
     # accumulates sufficient statistics for corpus mean and variance
